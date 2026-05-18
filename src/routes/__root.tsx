@@ -72,10 +72,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Hommy — Trusted home services in Singapore" },
+      { title: "Organid — Trusted home services in Singapore" },
       { name: "description", content: "Book verified cleaners, handymen and plumbers in Singapore. Transparent hourly pricing and real-time tracking." },
-      { name: "author", content: "Hommy" },
-      { property: "og:title", content: "Hommy — Trusted home services in Singapore" },
+      { name: "author", content: "Organid" },
+      { property: "og:title", content: "Organid — Trusted home services in Singapore" },
       { property: "og:description", content: "Verified pros. Transparent hourly pricing. Real-time tracking." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

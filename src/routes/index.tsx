@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
     meta: [
-      { title: "Hommy — Book trusted home services in Singapore" },
+      { title: "Organid — Book trusted home services in Singapore" },
       {
         name: "description",
         content:
@@ -169,7 +169,7 @@ function Home() {
 
       {/* Trust */}
       <section className="px-4 pt-6">
-        <h3 className="mb-3 text-base font-semibold">Why Hommy</h3>
+        <h3 className="mb-3 text-base font-semibold">Why Organid</h3>
         <div className="space-y-2">
           <Trust
             Icon={ShieldCheck}
