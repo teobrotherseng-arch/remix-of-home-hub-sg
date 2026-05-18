@@ -2,11 +2,11 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Star, CheckCircle2, ShieldCheck } from "lucide-react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { PageHeader } from "@/components/app/PageHeader";
-import { getService } from "@/lib/services";
+import { getService, type Service } from "@/lib/services";
 
 export const Route = createFileRoute("/service/$slug")({
   component: ServiceDetail,
-  loader: ({ params }) => {
+  loader: ({ params }): { service: Service } => {
     const service = getService(params.slug);
     if (!service) throw notFound();
     return { service };
@@ -75,7 +75,7 @@ function ServiceDetail() {
         <section className="mt-5">
           <h3 className="mb-3 text-sm font-semibold">What's included</h3>
           <ul className="space-y-2">
-            {service.includes.map((item) => (
+            {service.includes.map((item: string) => (
               <li key={item} className="flex items-start gap-2 text-sm">
                 <CheckCircle2
                   className="mt-0.5 h-4 w-4 shrink-0"

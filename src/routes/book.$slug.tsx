@@ -3,11 +3,11 @@ import { useMemo, useState } from "react";
 import { Minus, Plus, Check } from "lucide-react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { PageHeader } from "@/components/app/PageHeader";
-import { getService } from "@/lib/services";
+import { getService, type Service } from "@/lib/services";
 
 export const Route = createFileRoute("/book/$slug")({
   component: Book,
-  loader: ({ params }) => {
+  loader: ({ params }): { service: Service } => {
     const service = getService(params.slug);
     if (!service) throw notFound();
     return { service };

@@ -9,38 +9,141 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TrackIdRouteImport } from './routes/track.$id'
+import { Route as ServiceSlugRouteImport } from './routes/service.$slug'
+import { Route as BookSlugRouteImport } from './routes/book.$slug'
 
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingsRoute = BookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackIdRoute = TrackIdRouteImport.update({
+  id: '/track/$id',
+  path: '/track/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiceSlugRoute = ServiceSlugRouteImport.update({
+  id: '/service/$slug',
+  path: '/service/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookSlugRoute = BookSlugRouteImport.update({
+  id: '/book/$slug',
+  path: '/book/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/bookings': typeof BookingsRoute
+  '/messages': typeof MessagesRoute
+  '/book/$slug': typeof BookSlugRoute
+  '/service/$slug': typeof ServiceSlugRoute
+  '/track/$id': typeof TrackIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/bookings': typeof BookingsRoute
+  '/messages': typeof MessagesRoute
+  '/book/$slug': typeof BookSlugRoute
+  '/service/$slug': typeof ServiceSlugRoute
+  '/track/$id': typeof TrackIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/bookings': typeof BookingsRoute
+  '/messages': typeof MessagesRoute
+  '/book/$slug': typeof BookSlugRoute
+  '/service/$slug': typeof ServiceSlugRoute
+  '/track/$id': typeof TrackIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/bookings'
+    | '/messages'
+    | '/book/$slug'
+    | '/service/$slug'
+    | '/track/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/account'
+    | '/bookings'
+    | '/messages'
+    | '/book/$slug'
+    | '/service/$slug'
+    | '/track/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/bookings'
+    | '/messages'
+    | '/book/$slug'
+    | '/service/$slug'
+    | '/track/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
+  BookingsRoute: typeof BookingsRoute
+  MessagesRoute: typeof MessagesRoute
+  BookSlugRoute: typeof BookSlugRoute
+  ServiceSlugRoute: typeof ServiceSlugRoute
+  TrackIdRoute: typeof TrackIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bookings': {
+      id: '/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +151,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/track/$id': {
+      id: '/track/$id'
+      path: '/track/$id'
+      fullPath: '/track/$id'
+      preLoaderRoute: typeof TrackIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/service/$slug': {
+      id: '/service/$slug'
+      path: '/service/$slug'
+      fullPath: '/service/$slug'
+      preLoaderRoute: typeof ServiceSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book/$slug': {
+      id: '/book/$slug'
+      path: '/book/$slug'
+      fullPath: '/book/$slug'
+      preLoaderRoute: typeof BookSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
+  BookingsRoute: BookingsRoute,
+  MessagesRoute: MessagesRoute,
+  BookSlugRoute: BookSlugRoute,
+  ServiceSlugRoute: ServiceSlugRoute,
+  TrackIdRoute: TrackIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
