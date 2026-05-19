@@ -10,8 +10,11 @@ import {
   Wallet,
   CalendarPlus,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { SERVICES } from "@/lib/services";
+import { useAuth } from "@/lib/auth";
+import { Splash } from "@/components/app/Splash";
 
 export const Route = createFileRoute("/")({
   component: Home,
