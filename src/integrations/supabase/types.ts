@@ -14,7 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          addons: Json
+          address: string
+          created_at: string
+          hours: number
+          id: string
+          notes: string | null
+          scheduled_date: string
+          scheduled_time: string
+          service_slug: string
+          status: string
+          total_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          addons?: Json
+          address: string
+          created_at?: string
+          hours: number
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          service_slug: string
+          status?: string
+          total_cents: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          addons?: Json
+          address?: string
+          created_at?: string
+          hours?: number
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          service_slug?: string
+          status?: string
+          total_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          onboarded: boolean
+          phone: string | null
+          postal_code: string | null
+          preferences: Json
+          updated_at: string
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          onboarded?: boolean
+          phone?: string | null
+          postal_code?: string | null
+          preferences?: Json
+          updated_at?: string
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          onboarded?: boolean
+          phone?: string | null
+          postal_code?: string | null
+          preferences?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
