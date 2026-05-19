@@ -10,8 +10,11 @@ import {
   Wallet,
   CalendarPlus,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { SERVICES } from "@/lib/services";
+import { useAuth } from "@/lib/auth";
+import { Splash } from "@/components/app/Splash";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -28,21 +31,44 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const navigate = Route.useNavigate();
+  const { user, ready } = useAuth();
+  const [splashDone, setSplashDone] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSplashDone(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (splashDone && ready && !user) {
+      navigate({ to: "/auth" });
+    }
+  }, [splashDone, ready, user, navigate]);
+
+  if (!splashDone || !ready || !user) {
+    return <Splash />;
+  }
+
+  const greetingHour = new Date().getHours();
+  const greeting =
+    greetingHour < 12 ? "Good morning" : greetingHour < 18 ? "Good afternoon" : "Good evening";
+
   return (
     <MobileShell>
       {/* Top bar */}
       <div className="bg-surface px-4 pt-5 pb-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Good evening</p>
-            <p className="text-base font-semibold">Welcome back 👋</p>
+            <p className="text-xs text-muted-foreground">{greeting}</p>
+            <p className="text-base font-semibold">Hi {user.name} 👋</p>
           </div>
           <button
             type="button"
             className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-sm font-semibold"
             aria-label="Profile"
           >
-            HS
+            {user.initials}
           </button>
         </div>
 
