@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ChevronRight,
   MapPin,
@@ -8,6 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { MobileShell } from "@/components/app/MobileShell";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/account")({
   component: Account,
@@ -21,17 +22,22 @@ const ROWS = [
 ];
 
 function Account() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <MobileShell>
       <div className="bg-surface px-4 pt-6 pb-5 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-base font-semibold">
-            HS
+            {user?.initials ?? "G"}
           </div>
-          <div>
-            <p className="text-base font-semibold">Hello, Sarah</p>
-            <p className="text-xs text-muted-foreground">
-              sarah@example.sg · Member since 2024
+          <div className="min-w-0">
+            <p className="text-base font-semibold">
+              Hello, {user?.name ?? "Guest"}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.email ?? "Not signed in"}
             </p>
           </div>
         </div>
@@ -67,6 +73,10 @@ function Account() {
       <section className="px-4 pt-4">
         <button
           type="button"
+          onClick={() => {
+            logout();
+            navigate({ to: "/auth" });
+          }}
           className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-surface py-3 text-sm font-semibold text-destructive"
         >
           <LogOut className="h-4 w-4" /> Log out
