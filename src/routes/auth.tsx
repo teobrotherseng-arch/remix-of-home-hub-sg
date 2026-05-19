@@ -49,34 +49,33 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto flex min-h-screen max-w-[480px] flex-col bg-background">
-        {/* Header */}
-        <div className="bg-foreground px-5 pt-10 pb-12 text-background rounded-b-[32px] shadow-pop">
-          <div className="flex items-center gap-2.5">
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-xl"
-              style={{ background: "var(--color-brand)" }}
-            >
-              <Sparkles className="h-4 w-4 text-brand-foreground" />
-            </span>
-            <span className="text-lg font-bold tracking-tight">organid</span>
-          </div>
-          <h1 className="mt-8 text-[26px] font-bold leading-tight">
+    <div className="min-h-screen bg-surface">
+      <div className="mx-auto flex min-h-screen max-w-[480px] flex-col bg-surface px-6 pt-12 pb-8">
+        {/* Brand */}
+        <div className="flex items-center gap-2.5">
+          <span
+            className="flex h-10 w-10 items-center justify-center rounded-xl"
+            style={{ background: "var(--color-brand)" }}
+          >
+            <Sparkles className="h-5 w-5 text-brand-foreground" />
+          </span>
+          <span className="text-xl font-bold tracking-tight">organid</span>
+        </div>
+
+        {/* Heading */}
+        <div className="mt-10">
+          <h1 className="text-[28px] font-bold leading-tight tracking-tight">
             {mode === "login" ? "Welcome back" : "Create your account"}
           </h1>
-          <p className="mt-1 text-sm text-background/70">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             {mode === "login"
               ? "Log in to book trusted home services."
               : "Sign up in seconds. No credit card required."}
           </p>
         </div>
 
-        {/* Card */}
-        <div className="-mt-6 px-4">
-          <div className="rounded-3xl border border-border bg-surface p-5 shadow-soft">
-            {/* Tabs */}
-            <div className="grid grid-cols-2 gap-1 rounded-full bg-secondary p-1">
+        {/* Tabs */}
+        <div className="mt-8 grid grid-cols-2 gap-1 rounded-full bg-secondary p-1">
               {(["login", "signup"] as const).map((m) => {
                 const active = mode === m;
                 return (
