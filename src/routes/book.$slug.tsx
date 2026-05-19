@@ -41,8 +41,8 @@ function Book() {
   }, []);
 
   const addonsTotal = service.addons
-    .filter((a) => addons.includes(a.id))
-    .reduce((s, a) => s + a.price, 0);
+    .filter((a: Service["addons"][number]) => addons.includes(a.id))
+    .reduce((s: number, a: Service["addons"][number]) => s + a.price, 0);
   const labour = hours * service.hourlyRate;
   const platform = 3;
   const total = labour + addonsTotal + platform;
@@ -73,7 +73,7 @@ function Book() {
         scheduled_time: time,
         address,
         notes: notes.trim() || null,
-        addons: service.addons.filter((a) => addons.includes(a.id)),
+        addons: service.addons.filter((a: Service["addons"][number]) => addons.includes(a.id)),
         status: "confirmed",
         total_cents: Math.round(total * 100),
       })
@@ -133,7 +133,7 @@ function Book() {
               <div className="flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setHours((h) => Math.max(service.minHours, h - 0.5))}
+                  onClick={() => setHours((h: number) => Math.max(service.minHours, h - 0.5))}
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-border"
                   aria-label="Decrease"
                 >
@@ -145,7 +145,7 @@ function Book() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setHours((h) => Math.min(8, h + 0.5))}
+                  onClick={() => setHours((h: number) => Math.min(8, h + 0.5))}
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-border"
                   aria-label="Increase"
                 >
@@ -159,7 +159,7 @@ function Book() {
 
             <Card title="Add-ons" subtitle="Optional">
               <div className="space-y-2">
-                {service.addons.map((a) => {
+                {service.addons.map((a: Service["addons"][number]) => {
                   const on = addons.includes(a.id);
                   return (
                     <button

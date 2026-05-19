@@ -51,11 +51,10 @@ function Home() {
     }
   }, [splashDone, ready, user, profile, navigate]);
 
-  // Splash while we wait for auth + profile to resolve
-  if (!splashDone || !ready || !user || (user && !profile)) {
+  // Splash while we wait for auth + profile to resolve, or while we redirect
+  if (!splashDone || !ready || !user || !profile || !profile.onboarded) {
     return <Splash />;
   }
-  if (!profile.onboarded) return <Splash />;
 
   const greetingHour = new Date().getHours();
   const greeting =
@@ -63,10 +62,9 @@ function Home() {
 
   const firstName = displayName(profile, user.email);
   const initials = initialsFrom(profile.full_name, user.email);
-  const address =
-    profile.address_line1
-      ? [profile.address_line1, profile.address_line2].filter(Boolean).join(", ")
-      : "Add your service address";
+  const address = profile.address_line1
+    ? [profile.address_line1, profile.address_line2].filter(Boolean).join(", ")
+    : "Add your service address";
 
   return (
     <MobileShell>
