@@ -172,8 +172,6 @@ function AuthPage() {
               <Link to="/" className="underline">Terms</Link> &{" "}
               <Link to="/" className="underline">Privacy Policy</Link>.
             </p>
-          </div>
-        </div>
 
         <div className="flex-1" />
       </div>
