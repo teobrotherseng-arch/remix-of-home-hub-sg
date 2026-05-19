@@ -4,6 +4,8 @@ import { Minus, Plus, Check } from "lucide-react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { PageHeader } from "@/components/app/PageHeader";
 import { getService, type Service } from "@/lib/services";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/book/$slug")({
   component: Book,
@@ -19,12 +21,15 @@ const TIMES = ["09:00", "11:00", "13:00", "15:00", "17:00", "19:00"];
 function Book() {
   const { service } = Route.useLoaderData();
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [hours, setHours] = useState(service.minHours);
   const [dayOffset, setDayOffset] = useState(0);
   const [time, setTime] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [addons, setAddons] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const days = useMemo(() => {
     const today = new Date();
@@ -36,25 +41,62 @@ function Book() {
   }, []);
 
   const addonsTotal = service.addons
-    .filter((a: Service["addons"][number]) => addons.includes(a.id))
-    .reduce((s: number, a: Service["addons"][number]) => s + a.price, 0);
+    .filter((a) => addons.includes(a.id))
+    .reduce((s, a) => s + a.price, 0);
   const labour = hours * service.hourlyRate;
   const platform = 3;
   const total = labour + addonsTotal + platform;
 
-  const canNext =
-    step === 1 ? true : step === 2 ? Boolean(time) : true;
+  const address =
+    [profile?.address_line1, profile?.address_line2, profile?.postal_code]
+      .filter(Boolean)
+      .join(", ") || "Address on file";
+
+  const canNext = step === 1 ? true : step === 2 ? Boolean(time) : true;
+
+  async function confirm() {
+    if (!user || !time) return;
+    setError(null);
+    setSubmitting(true);
+    const date = days[dayOffset];
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+
+    const { data, error } = await supabase
+      .from("bookings")
+      .insert({
+        user_id: user.id,
+        service_slug: service.slug,
+        hours,
+        scheduled_date: `${yyyy}-${mm}-${dd}`,
+        scheduled_time: time,
+        address,
+        notes: notes.trim() || null,
+        addons: service.addons.filter((a) => addons.includes(a.id)),
+        status: "confirmed",
+        total_cents: Math.round(total * 100),
+      })
+      .select("id")
+      .single();
+
+    setSubmitting(false);
+    if (error || !data) {
+      setError(error?.message ?? "Could not create booking.");
+      return;
+    }
+    navigate({ to: "/track/$id", params: { id: data.id } });
+  }
 
   function next() {
     if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
-    else navigate({ to: "/track/$id", params: { id: "HM-8421" } });
+    else void confirm();
   }
 
   return (
     <MobileShell showNav={false}>
       <PageHeader title={`Book ${service.name}`} back={`/service/${service.slug}`} />
 
-      {/* Stepper */}
       <div className="flex items-center gap-2 px-4 pt-4">
         {[1, 2, 3].map((n) => (
           <div key={n} className="flex flex-1 items-center gap-2">
@@ -72,8 +114,7 @@ function Book() {
               <div
                 className="h-1 flex-1 rounded-full"
                 style={{
-                  background:
-                    n < step ? "var(--color-brand)" : "var(--color-border)",
+                  background: n < step ? "var(--color-brand)" : "var(--color-border)",
                 }}
               />
             )}
@@ -92,7 +133,7 @@ function Book() {
               <div className="flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setHours((h: number) => Math.max(service.minHours, h - 0.5))}
+                  onClick={() => setHours((h) => Math.max(service.minHours, h - 0.5))}
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-border"
                   aria-label="Decrease"
                 >
@@ -104,7 +145,7 @@ function Book() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setHours((h: number) => Math.min(8, h + 0.5))}
+                  onClick={() => setHours((h) => Math.min(8, h + 0.5))}
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-border"
                   aria-label="Increase"
                 >
@@ -118,7 +159,7 @@ function Book() {
 
             <Card title="Add-ons" subtitle="Optional">
               <div className="space-y-2">
-                {service.addons.map((a: Service["addons"][number]) => {
+                {service.addons.map((a) => {
                   const on = addons.includes(a.id);
                   return (
                     <button
@@ -131,24 +172,18 @@ function Book() {
                       }
                       className="flex w-full items-center justify-between rounded-2xl border bg-surface px-3 py-3 text-left"
                       style={{
-                        borderColor: on
-                          ? "var(--color-brand)"
-                          : "var(--color-border)",
+                        borderColor: on ? "var(--color-brand)" : "var(--color-border)",
                         background: on ? "var(--color-brand-soft)" : undefined,
                       }}
                     >
                       <div>
                         <p className="text-sm font-medium">{a.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          +S${a.price}
-                        </p>
+                        <p className="text-xs text-muted-foreground">+S${a.price}</p>
                       </div>
                       <div
                         className="flex h-6 w-6 items-center justify-center rounded-full border"
                         style={{
-                          borderColor: on
-                            ? "var(--color-brand)"
-                            : "var(--color-border)",
+                          borderColor: on ? "var(--color-brand)" : "var(--color-border)",
                           background: on ? "var(--color-brand)" : "transparent",
                         }}
                       >
@@ -185,12 +220,8 @@ function Book() {
                       onClick={() => setDayOffset(i)}
                       className="flex min-w-[60px] flex-col items-center rounded-2xl border px-3 py-2 text-sm"
                       style={{
-                        borderColor: active
-                          ? "var(--color-brand)"
-                          : "var(--color-border)",
-                        background: active
-                          ? "var(--color-brand)"
-                          : "var(--color-surface)",
+                        borderColor: active ? "var(--color-brand)" : "var(--color-border)",
+                        background: active ? "var(--color-brand)" : "var(--color-surface)",
                         color: active ? "white" : "var(--color-foreground)",
                       }}
                     >
@@ -215,12 +246,8 @@ function Book() {
                       onClick={() => setTime(t)}
                       className="rounded-2xl border py-2.5 text-sm font-medium"
                       style={{
-                        borderColor: active
-                          ? "var(--color-brand)"
-                          : "var(--color-border)",
-                        background: active
-                          ? "var(--color-brand)"
-                          : "var(--color-surface)",
+                        borderColor: active ? "var(--color-brand)" : "var(--color-border)",
+                        background: active ? "var(--color-brand)" : "var(--color-surface)",
                         color: active ? "white" : "var(--color-foreground)",
                       }}
                     >
@@ -237,7 +264,7 @@ function Book() {
           <>
             <Card title="Booking summary">
               <Row label="Service" value={service.name} />
-              <Row label="Address" value="Blk 123 Tampines St 11" />
+              <Row label="Address" value={address} />
               <Row
                 label="When"
                 value={`${days[dayOffset].toLocaleDateString("en-SG", {
@@ -261,11 +288,7 @@ function Book() {
               <div className="mt-2 border-t border-border pt-3">
                 <Row
                   label={<span className="text-sm font-semibold">Total</span>}
-                  value={
-                    <span className="text-base font-bold">
-                      S${total.toFixed(2)}
-                    </span>
-                  }
+                  value={<span className="text-base font-bold">S${total.toFixed(2)}</span>}
                 />
               </div>
             </Card>
@@ -274,9 +297,7 @@ function Book() {
               <div className="flex items-center justify-between rounded-2xl border border-border px-3 py-3">
                 <div>
                   <p className="text-sm font-medium">PayNow / Card</p>
-                  <p className="text-xs text-muted-foreground">
-                    Charged after service ends
-                  </p>
+                  <p className="text-xs text-muted-foreground">Charged after service ends</p>
                 </div>
                 <span
                   className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
@@ -289,11 +310,16 @@ function Book() {
                 </span>
               </div>
             </Card>
+
+            {error && (
+              <p className="mt-2 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                {error}
+              </p>
+            )}
           </>
         )}
       </div>
 
-      {/* Sticky footer */}
       <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[480px] border-t border-border bg-surface/95 px-4 py-3 backdrop-blur">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Total</span>
@@ -311,17 +337,16 @@ function Book() {
           )}
           <button
             type="button"
-            disabled={!canNext}
+            disabled={!canNext || submitting}
             onClick={next}
             className="flex h-12 flex-[2] items-center justify-center rounded-2xl bg-brand text-sm font-semibold text-brand-foreground disabled:opacity-50"
           >
-            {step === 3 ? `Confirm & pay` : "Continue"}
+            {step === 3 ? (submitting ? "Confirming…" : "Confirm & pay") : "Continue"}
           </button>
         </div>
         <div className="h-[env(safe-area-inset-bottom)]" />
       </div>
 
-      {/* Hidden link to suppress unused import in some builds */}
       <Link to="/" className="hidden" aria-hidden />
     </MobileShell>
   );
@@ -340,22 +365,14 @@ function Card({
     <section className="mb-3 rounded-2xl border border-border bg-surface p-4 shadow-soft">
       <div className="mb-3 flex items-end justify-between">
         <h3 className="text-sm font-semibold">{title}</h3>
-        {subtitle && (
-          <span className="text-[11px] text-muted-foreground">{subtitle}</span>
-        )}
+        {subtitle && <span className="text-[11px] text-muted-foreground">{subtitle}</span>}
       </div>
       {children}
     </section>
   );
 }
 
-function Row({
-  label,
-  value,
-}: {
-  label: React.ReactNode;
-  value: React.ReactNode;
-}) {
+function Row({ label, value }: { label: React.ReactNode; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between py-1.5 text-sm">
       <span className="text-muted-foreground">{label}</span>
