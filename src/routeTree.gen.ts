@@ -9,7 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccountRouteImport } from './routes/account'
@@ -18,9 +21,24 @@ import { Route as TrackIdRouteImport } from './routes/track.$id'
 import { Route as ServiceSlugRouteImport } from './routes/service.$slug'
 import { Route as BookSlugRouteImport } from './routes/book.$slug'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingsRoute = BookingsRouteImport.update({
@@ -64,7 +82,10 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/bookings': typeof BookingsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/book/$slug': typeof BookSlugRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/track/$id': typeof TrackIdRoute
@@ -74,7 +95,10 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/bookings': typeof BookingsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/book/$slug': typeof BookSlugRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/track/$id': typeof TrackIdRoute
@@ -85,7 +109,10 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/bookings': typeof BookingsRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/messages': typeof MessagesRoute
+  '/onboarding': typeof OnboardingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/book/$slug': typeof BookSlugRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/track/$id': typeof TrackIdRoute
@@ -97,7 +124,10 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/bookings'
+    | '/forgot-password'
     | '/messages'
+    | '/onboarding'
+    | '/reset-password'
     | '/book/$slug'
     | '/service/$slug'
     | '/track/$id'
@@ -107,7 +137,10 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/bookings'
+    | '/forgot-password'
     | '/messages'
+    | '/onboarding'
+    | '/reset-password'
     | '/book/$slug'
     | '/service/$slug'
     | '/track/$id'
@@ -117,7 +150,10 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/bookings'
+    | '/forgot-password'
     | '/messages'
+    | '/onboarding'
+    | '/reset-password'
     | '/book/$slug'
     | '/service/$slug'
     | '/track/$id'
@@ -128,7 +164,10 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   BookingsRoute: typeof BookingsRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   MessagesRoute: typeof MessagesRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   BookSlugRoute: typeof BookSlugRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
   TrackIdRoute: typeof TrackIdRoute
@@ -136,11 +175,32 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages': {
       id: '/messages'
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookings': {
@@ -200,7 +260,10 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   BookingsRoute: BookingsRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   MessagesRoute: MessagesRoute,
+  OnboardingRoute: OnboardingRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   BookSlugRoute: BookSlugRoute,
   ServiceSlugRoute: ServiceSlugRoute,
   TrackIdRoute: TrackIdRoute,
@@ -208,13 +271,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

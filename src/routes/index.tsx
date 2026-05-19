@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { MobileShell } from "@/components/app/MobileShell";
 import { SERVICES } from "@/lib/services";
-import { useAuth } from "@/lib/auth";
+import { useAuth, displayName, initialsFrom } from "@/lib/auth";
 import { Splash } from "@/components/app/Splash";
 
 export const Route = createFileRoute("/")({
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const navigate = Route.useNavigate();
-  const { user, ready } = useAuth();
+  const { user, profile, ready } = useAuth();
   const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
@@ -41,12 +41,18 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if (splashDone && ready && !user) {
+    if (!splashDone || !ready) return;
+    if (!user) {
       navigate({ to: "/auth" });
+      return;
     }
-  }, [splashDone, ready, user, navigate]);
+    if (profile && !profile.onboarded) {
+      navigate({ to: "/onboarding" });
+    }
+  }, [splashDone, ready, user, profile, navigate]);
 
-  if (!splashDone || !ready || !user) {
+  // Splash while we wait for auth + profile to resolve, or while we redirect
+  if (!splashDone || !ready || !user || !profile || !profile.onboarded) {
     return <Splash />;
   }
 
@@ -54,27 +60,31 @@ function Home() {
   const greeting =
     greetingHour < 12 ? "Good morning" : greetingHour < 18 ? "Good afternoon" : "Good evening";
 
+  const firstName = displayName(profile, user.email);
+  const initials = initialsFrom(profile.full_name, user.email);
+  const address = profile.address_line1
+    ? [profile.address_line1, profile.address_line2].filter(Boolean).join(", ")
+    : "Add your service address";
+
   return (
     <MobileShell>
-      {/* Top bar */}
       <div className="bg-surface px-4 pt-5 pb-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">{greeting}</p>
-            <p className="text-base font-semibold">Hi {user.name} 👋</p>
+            <p className="text-base font-semibold">Hi {firstName} 👋</p>
           </div>
-          <button
-            type="button"
+          <Link
+            to="/account"
             className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-sm font-semibold"
             aria-label="Profile"
           >
-            {user.initials}
-          </button>
+            {initials}
+          </Link>
         </div>
 
-        {/* Location */}
-        <button
-          type="button"
+        <Link
+          to="/account"
           className="mt-4 flex w-full items-center gap-2 rounded-2xl border border-border bg-surface px-3 py-2.5 text-left shadow-soft"
         >
           <MapPin className="h-4 w-4" style={{ color: "var(--color-brand)" }} />
@@ -82,14 +92,11 @@ function Home() {
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Service address
             </p>
-            <p className="truncate text-sm font-medium">
-              Blk 123 Tampines St 11, #08-21
-            </p>
+            <p className="truncate text-sm font-medium">{address}</p>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
+        </Link>
 
-        {/* Search */}
         <div className="mt-3 flex items-center gap-2 rounded-2xl bg-secondary px-3 py-2.5">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
@@ -100,7 +107,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Hero */}
       <section className="px-4 pt-4">
         <div className="relative overflow-hidden rounded-3xl bg-foreground p-5 text-background shadow-pop">
           <div
@@ -129,7 +135,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Categories */}
       <section className="px-4 pt-6">
         <div className="mb-3 flex items-end justify-between">
           <h3 className="text-base font-semibold">Services</h3>
@@ -155,45 +160,14 @@ function Home() {
         </div>
       </section>
 
-      {/* Quick actions */}
       <section className="px-4 pt-6">
         <h3 className="mb-3 text-base font-semibold">Quick actions</h3>
         <div className="grid grid-cols-2 gap-2.5">
-          <QuickAction
-            Icon={CalendarPlus}
-            title="Rebook last"
-            sub="2.5 hr cleaning"
-          />
+          <QuickAction Icon={CalendarPlus} title="Rebook last" sub="2.5 hr cleaning" />
           <QuickAction Icon={Clock3} title="Same-day slots" sub="Today, 8 pm" />
         </div>
       </section>
 
-      {/* Active booking */}
-      <section className="px-4 pt-6">
-        <Link
-          to="/track/$id"
-          params={{ id: "HM-8421" }}
-          className="flex items-center gap-3 rounded-2xl border border-border bg-brand-soft p-4 shadow-soft"
-        >
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-full text-base font-semibold text-brand-foreground"
-            style={{ background: "var(--color-brand)" }}
-          >
-            🧹
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-accent-foreground">
-              Active booking
-            </p>
-            <p className="truncate text-sm font-semibold">
-              Cleaner on the way · ETA 18 min
-            </p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-accent-foreground" />
-        </Link>
-      </section>
-
-      {/* Trust */}
       <section className="px-4 pt-6">
         <h3 className="mb-3 text-base font-semibold">Why Organid</h3>
         <div className="space-y-2">
